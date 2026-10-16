@@ -1,3 +1,5 @@
+// src/components/SearchBar.jsx
+import React from "react";
 import { useBooking } from "../context/BookingContext";
 
 function SearchBar() {
@@ -33,7 +35,7 @@ function SearchBar() {
             className="primary-btn search-btn"
             onClick={handleSearch}
           >
-          Search
+            Search
           </button>
         </div>
 
@@ -45,4 +47,5 @@ function SearchBar() {
     </section>
   );
 }
+
 export default SearchBar;

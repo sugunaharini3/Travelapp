@@ -1,6 +1,5 @@
-
+// src/hooks/useBookingCart.js
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 const CART_KEY = "beyondHorizonsCart";
 
 function useBookingCart() {
@@ -11,7 +10,6 @@ function useBookingCart() {
       return [];
     }
   });
-
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [travelDates, setTravelDates] = useState({ start: "", end: "" });
   const [travelers, setTravelers] = useState(1);
@@ -104,7 +102,6 @@ function useBookingCart() {
     ) {
       return false;
     }
-
     setBookingDetails({
       packages: cartItems,
       travelers: travelerCount,
@@ -113,7 +110,6 @@ function useBookingCart() {
       paymentMethod,
       totalAmount: finalBookingAmount
     });
-
     return true;
   }, [
     cartItems,

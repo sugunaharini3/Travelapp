@@ -1,17 +1,37 @@
-import { useBooking } from "../context/BookingContext";
+// src/components/BookingCart.jsx
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-function BookingCart() {
-  const {
-    cartItems,
-    removeFromCart,
-    clearCart,
-    cartOpen,
-    setCartOpen
-  } = useBooking();
-const navigate = useNavigate();
+import {
+  removeFromCart,
+  clearCart,
+  selectBookingSummary,
+} from "../redux/bookingSlice";
+import { getCurrentToken, logoutUser } from "../services/authApi";
+
+function BookingCart({ cartOpen, setCartOpen }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Pull cart items directly from Redux store
+  const cartItems = useSelector((state) => state.booking.cart);
+  
+  // Pull financial breakdown
+  const { subtotal, discount, tax, finalTotal } = useSelector(selectBookingSummary);
+
   const goToCheckout = () => {
+    // Check authentication token before allowing checkout access (Experiment 4 requirement)
+    const token = getCurrentToken();
+    if (!token || token === "expired_token") {
+      alert("Please log in to proceed to checkout and secure your booking.");
+      logoutUser();
+      setCartOpen(false);
+      navigate("/login", { state: { from: { pathname: "/booking" } } });
+      return;
+    }
+
     setCartOpen(false);
-    navigate("/booking")
+    navigate("/booking");
     setTimeout(() => {
       document
         .getElementById("traveler-details-section")
@@ -64,15 +84,16 @@ const navigate = useNavigate();
                     <h3>{item.name}</h3>
                     <p>📍 {item.destination}</p>
                     <p>🗓️ {item.duration}</p>
+                    <p>👥 Travelers: {item.travelers || 1}</p>
                   </div>
 
                   <div className="cart-actions">
-                    <strong>₹{item.price}</strong>
+                    <strong>₹{(item.price * (item.travelers || 1)).toLocaleString("en-IN")}</strong>
 
                     <button
                       className="remove-btn"
                       onClick={() =>
-                        removeFromCart(item.id)
+                        dispatch(removeFromCart(item.id))
                       }
                     >
                       Remove
@@ -82,11 +103,33 @@ const navigate = useNavigate();
               ))}
             </div>
 
+            {/* Financial Calculations Summary Box */}
+            <div style={{ padding: "12px", background: "#f8f9fa", margin: "10px 0", borderRadius: "6px", fontSize: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span>Subtotal:</span>
+                <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
+              </div>
+              {discount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px", color: "green" }}>
+                  <span>Discount (10%):</span>
+                  <strong>-₹{discount.toLocaleString("en-IN")}</strong>
+                </div>
+              )}
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                <span>Tax (18% GST):</span>
+                <strong>+₹{tax.toLocaleString("en-IN")}</strong>
+              </div>
+              <hr style={{ border: "0", borderTop: "1px solid #ddd", margin: "8px 0" }} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "16px", color: "#2b8a3e" }}>
+                <span>Final Total:</span>
+                <strong>₹{finalTotal.toLocaleString("en-IN")}</strong>
+              </div>
+            </div>
+
             <div className="cart-footer-actions">
               <button
                 className="secondary-btn"
-                onClick={clearCart}
-              >
+                onClick={() => dispatch(clearCart())}>
                 Clear Cart
               </button>
 

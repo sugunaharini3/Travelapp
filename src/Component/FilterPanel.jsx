@@ -1,5 +1,7 @@
-
+// src/components/FilterPanel.jsx
+import React from "react";
 import { useBooking } from "../context/BookingContext";
+
 function FilterPanel() {
   const {
     travelType,
@@ -11,6 +13,7 @@ function FilterPanel() {
     ratingFilter,
     setRatingFilter
   } = useBooking();
+
   return (
     <div className="filter-panel">
       <span className="filter-title">Filter By</span>
